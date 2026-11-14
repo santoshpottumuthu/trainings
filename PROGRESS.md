@@ -1,15 +1,16 @@
 # Project Progress
 
 ## Current Status
-- Current phase: Git publication complete; implementation and integration verification remain in progress
+- Current phase: Cloud setup; source is published and Vercel/Neon configuration is in progress
 - Overall completion: 60%
-- Current task: Resume application verification after publishing the initial source to GitHub
-- Next task: Configure PostgreSQL, regenerate Next.js route types, and verify database-backed workflows and protected-route behavior
+- Current task: Configure production environment variables and initialize the Neon database
+- Next task: Create the Vercel project, apply migrations and seed the administrator, then verify the deployed workflows
 
 ## Phase Tracking
 
 - [x] Phase 1: Project Analysis and Planning
 - [x] Git publication: initialized local Git, excluded `.env`, committed source, and pushed `main` to GitHub
+- [ ] Cloud setup: Neon project created; Vercel project import and production configuration remain pending
 - [ ] Phase 2: Project Initialization (application/tooling complete; live database connection unverified)
 - [ ] Phase 3: Database Implementation (schema, migration, and seed implemented; database execution unverified)
 - [ ] Phase 4: Public Application (implemented; database-backed workflow verification pending)
@@ -41,6 +42,8 @@
 - Audited Git readiness: the workspace has no `.git` directory and no configured remote. `.gitignore` excludes `.env`, `.next`, `node_modules`, and `.vercel`; `.env.example` remains publishable.
 - Removed non-empty development credential values from `.env.example`; local `.env` remains ignored and must never be staged.
 - Initialized Git on `main`, verified `.env` was not staged, committed as `a8cb3c7356d46b544aaf5b07a3ed17eda38f25a3`, and pushed successfully to `https://github.com/santoshpottumuthu/trainings`.
+- Authenticated to the Vercel and Neon accounts through their browser sign-in flows; confirmed `trainings` is available in Vercel's New Project import form.
+- Created a separate Neon project named `training-records-management` in AWS US East 1 (N. Virginia); its production database currently has no application tables.
 - Selected a single Next.js App Router application with TypeScript, PostgreSQL, Prisma, Auth.js Credentials, Zod, Tailwind CSS, and shadcn/ui-compatible components; no separate backend service.
 - Selected bcrypt for password hashing and Auth.js JWT sessions with secure cookie settings, avoiding a credentials-provider/database-session incompatibility.
 - Planned database-backed login throttling to work across serverless instances without introducing a separate rate-limit service.
@@ -48,10 +51,10 @@
 - Recorded implementation structure and dependency order below.
 
 ## Issues Identified
-- **Git publication complete:** the initial source commit is on the configured GitHub `main` branch. Vercel deployment and database-backed verification remain blocked on their respective authorization/configuration.
+- **Git publication complete:** the initial source commit is on the configured GitHub `main` branch. Vercel deployment and database-backed verification remain blocked on production environment configuration.
 - **Local development sign-in is not currently configured:** the inspected `.env` has no development-login flag or username/password values, so the temporary bypass is disabled; without `DATABASE_URL`, the normal database-backed sign-in cannot work.
-- **No production database or hosting configuration is available:** local development can proceed using placeholders and a local setup path, but production database provisioning and Vercel deployment will require account authorization/configuration. GitHub access for source publication was available through the authenticated Git integration.
-- **No PostgreSQL installation or credentials are available:** `psql`, `postgres`, and `docker` are not on PATH. The Prisma client, schema, migration, and seed are ready, but live migration, seed, and connection behavior cannot yet be verified.
+- **Vercel environment is not configured:** the Vercel import form is open but the project has not yet been created. Production database URLs, Auth.js secret, and administrator seed values must be entered as private environment variables.
+- **Production database is not initialized:** the Neon project is provisioned, but the schema migration, administrator seed, and live application connection have not been run or verified.
 - **Record route protection needs re-verification:** an anonymous request to `/admin/records/new` returned HTTP 200 before the route was moved under the protected layout. The source route was moved; a post-move production build and HTTP check have not completed.
 - **Stale Next.js route types after route move:** `npm run typecheck` referenced the old `.next/types/validator.ts` route path. A subsequent build was started but interrupted, so regenerated route types and the fixed route behavior are not yet confirmed.
 - **Node runtime is behind dependency engine recommendations:** available Node is 22.5.1; installed lint/UI transitive packages request Node 22.13+ (or 20.19+). Lint, typecheck, and build currently pass on 22.5.1, with engine warnings during install.
@@ -66,7 +69,7 @@
 5. **Phase 5 — Authentication:** credentials login, bcrypt verification, secure JWT cookies, server-side route/action authorization, and database-backed rate limiting; no registration.
 6. **Phase 6 — Record creation:** validated server action, HTTPS URL checks, authorization, duplicate-submit protection, persistence, and user feedback.
 7. **Phase 7 — QA:** focused automated tests, lint, type-check, production build, and workflow/security checks; fix critical/high-priority issues.
-8. **Phase 8 — Deployment:** prepare deployment configuration and instructions; deploy only after authorized GitHub/Vercel/Neon access and production environment configuration are available, then verify the real URL and database workflows.
+8. **Phase 8 — Deployment:** prepare deployment configuration and instructions; deploy after production environment configuration is available, then verify the real URL and database workflows.
 
 ### Key Security Decisions
 - Keep Prisma access and all data mutations on the server.
@@ -78,10 +81,10 @@
 - Use database uniqueness/constraints and submission safeguards where appropriate.
 
 ## Outstanding Issues
-- **High — database verification blocked:** no local PostgreSQL service or configured `DATABASE_URL`/`DIRECT_URL`; cannot apply a migration, run the seed against a database, or test real persistence.
+- **High — database verification blocked:** the Neon project exists, but `DATABASE_URL` and `DIRECT_URL` are not configured in the app environment; migration, seed, and real persistence remain unverified.
 - **High — protected creation route recheck:** route source is under the protected layout, but the latest build and anonymous redirect check were interrupted.
 - **Medium — development dependency audit:** remaining audit findings are development-only and moderate; production-only audit is clean. Review and resolve before release.
-- **Blocking production deployment:** Vercel project authorization, Neon database/credentials, and production secrets have not been provided. Do not request or place secrets in chat; deployment setup must use the authorized provider UI/environment configuration when available.
+- **Blocking production deployment:** the Vercel project has not been created, and required production environment values have not been entered. Keep database URLs, administrator credentials, and `AUTH_SECRET` in provider/local environment settings, never in chat or source control.
 
 ## Test Results
 - `Get-ChildItem -Force`: passed; confirmed only `COPILOT_TASK.md` exists in the root.
@@ -119,5 +122,6 @@
 
 ## Deployment Status
 - Not deployed.
-- Production URL: unavailable; hosting authorization and production configuration are absent.
+- Neon project `training-records-management` created in AWS US East 1; Vercel project creation is pending environment configuration.
+- Production URL: unavailable; the Vercel project has not yet been created.
 - Production verification: not run.
