@@ -11,8 +11,7 @@ const httpsUrl = z
     message: "Enter a valid HTTPS URL.",
   });
 
-export const trainingRecordSchema = z.object({
-  submissionKey: z.string().uuid(),
+const trainingRecordFields = {
   date: z.iso.date(),
   trainer: z.string().trim().min(1).max(100),
   subject: z.string().trim().min(1).max(100),
@@ -26,9 +25,17 @@ export const trainingRecordSchema = z.object({
     (value) => (value === "" || value === null ? undefined : value),
     z.string().trim().max(5000).optional(),
   ),
+};
+
+export const trainingRecordFieldsSchema = z.object(trainingRecordFields);
+export const trainingRecordSchema = trainingRecordFieldsSchema.extend({
+  submissionKey: z.string().uuid(),
 });
 
 export type TrainingRecordInput = z.infer<typeof trainingRecordSchema>;
+export type TrainingRecordFieldsInput = z.infer<
+  typeof trainingRecordFieldsSchema
+>;
 
 export type RecordFieldErrors = Partial<
   Record<
@@ -43,10 +50,12 @@ export type RecordFieldErrors = Partial<
   >
 >;
 
-export type CreateRecordState =
+export type RecordActionState =
   | {
       status: "error" | "success";
       message: string;
       fieldErrors?: RecordFieldErrors;
     }
   | null;
+
+export type CreateRecordState = RecordActionState;

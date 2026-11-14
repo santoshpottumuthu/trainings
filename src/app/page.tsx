@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import {
   buildPageHref,
@@ -18,6 +19,7 @@ type HomePageProps = {
 export const dynamic = "force-dynamic";
 
 export default async function Home({ searchParams }: HomePageProps) {
+  const session = await auth();
   const parsedFilters = parseRecordFilters(await searchParams);
   const filters = parsedFilters.success
     ? parsedFilters.data
@@ -61,7 +63,7 @@ export default async function Home({ searchParams }: HomePageProps) {
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
-      <header className="flex flex-wrap items-end justify-between gap-4">
+      <header className="flex flex-wrap items-end gap-4">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
             Training library
@@ -73,12 +75,6 @@ export default async function Home({ searchParams }: HomePageProps) {
             Find sessions by trainer, subject, topic, or date and open their learning resources.
           </p>
         </div>
-        <Link
-          href="/admin/login"
-          className="inline-flex h-9 items-center rounded-md border bg-background px-4 text-sm font-medium shadow-xs transition hover:bg-muted"
-        >
-          Administrator sign in
-        </Link>
       </header>
 
       <RecordFiltersForm
@@ -109,7 +105,10 @@ export default async function Home({ searchParams }: HomePageProps) {
         </div>
 
         {records.length > 0 ? (
-          <RecordsTable records={records} />
+          <RecordsTable
+            records={records}
+            isAdmin={session?.user.isAdmin === true}
+          />
         ) : (
           <div className="rounded-xl border border-dashed bg-card px-6 py-14 text-center">
             <h3 className="font-semibold">No training records found</h3>

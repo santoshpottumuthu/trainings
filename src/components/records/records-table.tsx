@@ -1,9 +1,12 @@
 import type { TrainingRecord } from "@prisma/client";
 import { ExternalLink } from "lucide-react";
+import Link from "next/link";
 import { asSafeHttpsUrl } from "@/lib/urls";
+import { DeleteRecordButton } from "./delete-record-button";
 
 type RecordsTableProps = {
   records: PublicTrainingRecord[];
+  isAdmin: boolean;
 };
 
 type PublicTrainingRecord = Pick<
@@ -44,7 +47,7 @@ function ResourceLink({ href, label }: { href: string | null; label: string }) {
   );
 }
 
-export function RecordsTable({ records }: RecordsTableProps) {
+export function RecordsTable({ records, isAdmin }: RecordsTableProps) {
   return (
     <>
       <div className="hidden overflow-hidden rounded-xl border bg-card shadow-sm md:block">
@@ -60,6 +63,9 @@ export function RecordsTable({ records }: RecordsTableProps) {
                 <th scope="col" className="px-4 py-3 font-semibold">Colab</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Dataset</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Notes</th>
+                {isAdmin ? (
+                  <th scope="col" className="px-4 py-3 font-semibold">Actions</th>
+                ) : null}
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -78,6 +84,22 @@ export function RecordsTable({ records }: RecordsTableProps) {
                   <td className="max-w-xs whitespace-pre-wrap px-4 py-4 text-muted-foreground">
                     {record.notes || "—"}
                   </td>
+                  {isAdmin ? (
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/admin/records/${record.id}/edit`}
+                          className="inline-flex h-8 items-center rounded-md border px-3 text-sm font-medium transition hover:bg-muted"
+                        >
+                          Edit
+                        </Link>
+                        <DeleteRecordButton
+                          recordId={record.id}
+                          recordLabel={record.topic}
+                        />
+                      </div>
+                    </td>
+                  ) : null}
                 </tr>
               ))}
             </tbody>
@@ -103,6 +125,20 @@ export function RecordsTable({ records }: RecordsTableProps) {
               <ResourceLink href={asSafeHttpsUrl(record.colabUrl)} label="Open Colab" />
               <ResourceLink href={asSafeHttpsUrl(record.datasetUrl)} label="Dataset" />
             </div>
+            {isAdmin ? (
+              <div className="mt-4 flex items-center gap-2 border-t pt-3">
+                <Link
+                  href={`/admin/records/${record.id}/edit`}
+                  className="inline-flex h-8 items-center rounded-md border px-3 text-sm font-medium transition hover:bg-muted"
+                >
+                  Edit
+                </Link>
+                <DeleteRecordButton
+                  recordId={record.id}
+                  recordLabel={record.topic}
+                />
+              </div>
+            ) : null}
           </article>
         ))}
       </div>

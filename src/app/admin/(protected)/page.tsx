@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { signOut } from "@/auth";
-import { Button } from "@/components/ui/button";
 
 export default function AdminHomePage() {
   return (
@@ -14,16 +12,6 @@ export default function AdminHomePage() {
             Training records
           </h1>
         </div>
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/" });
-          }}
-        >
-          <Button type="submit" variant="outline">
-            Sign out
-          </Button>
-        </form>
       </header>
       <section className="rounded-xl border bg-card p-6 shadow-sm">
         <h2 className="text-lg font-semibold">Manage the training library</h2>

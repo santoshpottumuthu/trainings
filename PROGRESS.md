@@ -1,23 +1,23 @@
 # Project Progress
 
 ## Current Status
-- Current phase: Cloud setup; source is published and Vercel/Neon configuration is in progress
-- Overall completion: 60%
-- Current task: Configure production environment variables and initialize the Neon database
-- Next task: Create the Vercel project, apply migrations and seed the administrator, then verify the deployed workflows
+- Current phase: Record management and deployment verification
+- Overall completion: 80%
+- Current task: Push and verify administrator-only record editing and deletion
+- Next task: Verify production login, public list, and admin CRUD workflows
 
 ## Phase Tracking
 
 - [x] Phase 1: Project Analysis and Planning
 - [x] Git publication: initialized local Git, excluded `.env`, committed source, and pushed `main` to GitHub
-- [ ] Cloud setup: Neon project created; Vercel project import and production configuration remain pending
-- [ ] Phase 2: Project Initialization (application/tooling complete; live database connection unverified)
-- [ ] Phase 3: Database Implementation (schema, migration, and seed implemented; database execution unverified)
-- [ ] Phase 4: Public Application (implemented; database-backed workflow verification pending)
-- [ ] Phase 5: Administrator Authentication (implemented; successful database-backed login unverified)
-- [ ] Phase 6: Record Management (implemented; persistence and post-move route protection unverified)
-- [ ] Phase 7: Quality Assurance (unit checks pass; integration/E2E checks pending)
-- [ ] Phase 8: Cloud Deployment
+- [x] Cloud setup: Vercel project connected to GitHub; production environment-variable names configured
+- [x] Phase 2: Project Initialization (application and tooling complete)
+- [x] Phase 3: Database Implementation (user reports production migration and seed succeeded)
+- [x] Phase 4: Public Application (shared records list implemented; live database verification pending)
+- [x] Phase 5: Administrator Authentication (implemented; login returns to the records list)
+- [x] Phase 6: Record Management (create, edit, and delete implemented with server-side admin checks)
+- [x] Phase 7: Quality Assurance (22 tests, lint, and production build pass; live workflow checks pending)
+- [ ] Phase 8: Cloud Deployment (initial production deployment is Ready; latest changes are not pushed)
 
 ## Completed Work
 - Read all 298 lines of `COPILOT_TASK.md`.
@@ -36,6 +36,10 @@
 - Added responsive desktop table/mobile cards, new-tab links restricted to safe HTTPS URLs, a no-results state, and a user-friendly error boundary.
 - Implemented Auth.js Credentials login with bcrypt verification, JWT sessions, secure production cookies, server-side admin route checks, and database-backed login throttling.
 - Implemented record creation with server-side admin authorization, Zod validation, HTTPS-only URLs, optional fields, user notifications, and a unique submission key for duplicate protection.
+- Added a shared site header with admin-only Create record, View records, and Sign out navigation; removed the top-level sign-in CTA and the unnecessary Back to administration link.
+- Changed successful sign-in and already-authenticated visits to the login page to open the shared records list.
+- Added admin-only Edit and Delete actions to each desktop table row and mobile record card. Edit opens a protected prefilled form; delete requires confirmation. Both mutations verify admin authorization server-side.
+- Reused and extended record-field validation for updates; successful edits and deletions return to the shared records list.
 - Moved the record-creation route under the protected admin route group after an anonymous-route smoke test showed the form was initially accessible; post-move verification is pending.
 - Added Vitest coverage for public filters/query construction, URL safety, credentials, admin seed configuration, and record validation (18 tests).
 - Added an explicitly opt-in development-only administrator login and changed successful sign-in to open the record form; production rejects the development login flag.
@@ -51,25 +55,21 @@
 - Recorded implementation structure and dependency order below.
 
 ## Issues Identified
-- **Git publication complete:** the initial source commit is on the configured GitHub `main` branch. Vercel deployment and database-backed verification remain blocked on production environment configuration.
-- **Local development sign-in is not currently configured:** the inspected `.env` has no development-login flag or username/password values, so the temporary bypass is disabled; without `DATABASE_URL`, the normal database-backed sign-in cannot work.
-- **Vercel environment is not configured:** the Vercel import form is open but the project has not yet been created. Production database URLs, Auth.js secret, and administrator seed values must be entered as private environment variables.
-- **Production database is not initialized:** the Neon project is provisioned, but the schema migration, administrator seed, and live application connection have not been run or verified.
-- **Record route protection needs re-verification:** an anonymous request to `/admin/records/new` returned HTTP 200 before the route was moved under the protected layout. The source route was moved; a post-move production build and HTTP check have not completed.
-- **Stale Next.js route types after route move:** `npm run typecheck` referenced the old `.next/types/validator.ts` route path. A subsequent build was started but interrupted, so regenerated route types and the fixed route behavior are not yet confirmed.
+- **Database-backed workflow verification remains pending:** the user reports that the production database migration and seed succeeded, but record persistence and admin login have not been independently exercised against Neon.
+- **Latest UI/CRUD changes are local only:** they must be pushed to GitHub before Vercel can deploy them.
+- **Production login and route checks remain pending:** the initial Vercel deployment reached Ready, but admin and anonymous flows have not been verified against its live URL.
 - **Node runtime is behind dependency engine recommendations:** available Node is 22.5.1; installed lint/UI transitive packages request Node 22.13+ (or 20.19+). Lint, typecheck, and build currently pass on 22.5.1, with engine warnings during install.
 - **Development-only dependency audit reports moderate advisories:** the Prisma high-severity finding was addressed with the tested override; production-only audit reports zero vulnerabilities. Remaining dev-tool advisories require review before final release.
-- **External service access is unverified:** package installation and deployment access may require network access; verify when those steps are reached.
 
 ## Architecture and Implementation Plan
 1. **Phase 1 — Analysis and planning:** inspect the starting workspace/toolchain, make and document architectural decisions and blockers. Complete.
-2. **Phase 2 — Initialization:** scaffold Next.js App Router + TypeScript; configure Tailwind and accessible UI primitives; add Prisma, environment examples, and a database client. The live connection portion remains blocked pending PostgreSQL configuration.
-3. **Phase 3 — Data layer:** define User, TrainingRecord, and durable login-throttle data; migrations, constraints/indexes, and safe administrator seeding; use pooled runtime and direct migration URLs.
-4. **Phase 4 — Public records:** server-side query/search/filter/pagination, accessible responsive listing, safe HTTPS links, and empty/error states.
-5. **Phase 5 — Authentication:** credentials login, bcrypt verification, secure JWT cookies, server-side route/action authorization, and database-backed rate limiting; no registration.
-6. **Phase 6 — Record creation:** validated server action, HTTPS URL checks, authorization, duplicate-submit protection, persistence, and user feedback.
-7. **Phase 7 — QA:** focused automated tests, lint, type-check, production build, and workflow/security checks; fix critical/high-priority issues.
-8. **Phase 8 — Deployment:** prepare deployment configuration and instructions; deploy after production environment configuration is available, then verify the real URL and database workflows.
+2. **Phase 2 — Initialization:** scaffold Next.js App Router + TypeScript; configure Tailwind and accessible UI primitives; add Prisma, environment examples, and a database client. Complete.
+3. **Phase 3 — Data layer:** define User, TrainingRecord, and durable login-throttle data; migrations, constraints/indexes, and safe administrator seeding; use pooled runtime and direct migration URLs. Implementation complete; production execution reported by user.
+4. **Phase 4 — Public records:** server-side query/search/filter/pagination, accessible responsive listing, safe HTTPS links, and empty/error states. Complete; live database check pending.
+5. **Phase 5 — Authentication:** credentials login, bcrypt verification, secure JWT cookies, server-side route/action authorization, and database-backed rate limiting; no registration. Complete; production login check pending.
+6. **Phase 6 — Record management:** validated create/update/delete actions, HTTPS URL checks, server-side admin authorization, duplicate-submit protection, and user feedback. Complete; live persistence check pending.
+7. **Phase 7 — QA:** focused automated tests, lint, type-check, production build, and workflow/security checks. Local checks pass; production workflow checks remain.
+8. **Phase 8 — Deployment:** Vercel project is linked and an initial production deployment reached Ready; push the latest changes and verify the live URL and database workflows.
 
 ### Key Security Decisions
 - Keep Prisma access and all data mutations on the server.
@@ -81,10 +81,9 @@
 - Use database uniqueness/constraints and submission safeguards where appropriate.
 
 ## Outstanding Issues
-- **High — database verification blocked:** the Neon project exists, but `DATABASE_URL` and `DIRECT_URL` are not configured in the app environment; migration, seed, and real persistence remain unverified.
-- **High — protected creation route recheck:** route source is under the protected layout, but the latest build and anonymous redirect check were interrupted.
+- **High — production CRUD verification:** verify admin edit/delete and confirm non-admins cannot see or invoke those actions against the production database.
+- **High — production login/list verification:** test the signed-in redirect to the shared list and the anonymous public list on the live deployment.
 - **Medium — development dependency audit:** remaining audit findings are development-only and moderate; production-only audit is clean. Review and resolve before release.
-- **Blocking production deployment:** the Vercel project has not been created, and required production environment values have not been entered. Keep database URLs, administrator credentials, and `AUTH_SECRET` in provider/local environment settings, never in chat or source control.
 
 ## Test Results
 - `Get-ChildItem -Force`: passed; confirmed only `COPILOT_TASK.md` exists in the root.
@@ -119,9 +118,13 @@
 - Latest test run before adding the development-login guard: 18 tests passed. Guard tests and the post-move route need a follow-up check.
 - Local DB tool probe: `psql`, `postgres`, and `docker` unavailable; no database connection/migration/seed test possible.
 - `git check-ignore -v .env node_modules .next .vercel tsconfig.tsbuildinfo`: passed; all local-secret/generated paths are ignored.
+- Latest `npm run lint`: passed.
+- Latest `npm test`: passed; 6 files, 22 tests.
+- Latest `npm run build`: passed; TypeScript check passed and `/admin/records/[id]/edit` was generated as a dynamic route.
+- Latest `git diff --check`: passed; only line-ending conversion warnings were reported.
 
 ## Deployment Status
-- Not deployed.
-- Neon project `training-records-management` created in AWS US East 1; Vercel project creation is pending environment configuration.
-- Production URL: unavailable; the Vercel project has not yet been created.
-- Production verification: not run.
+- Vercel project `trainings` is connected to `santoshpottumuthu/trainings`; its production environment variables are configured.
+- The initial production deployment for commit `4c1239f` reached Ready. Project domain shown in Vercel: `https://trainings-three-gold.vercel.app`.
+- The latest header, login redirect, and admin edit/delete changes are local and have not yet been pushed or deployed.
+- The user reports that the Neon migration and seed succeeded; the production login and CRUD workflows still need verification.
