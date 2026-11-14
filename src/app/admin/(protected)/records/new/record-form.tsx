@@ -129,6 +129,20 @@ export function RecordForm({ submissionKey }: { submissionKey: string }) {
       </label>
 
       <label className="grid gap-1.5 text-sm font-medium">
+        Video link <span className="font-normal text-muted-foreground">(optional)</span>
+        <input
+          className={fieldClassName}
+          name="videoUrl"
+          type="url"
+          inputMode="url"
+          maxLength={2048}
+          placeholder="https://..."
+          {...fieldProps(errors, "videoUrl")}
+        />
+        <FieldError id="videoUrl-error" message={errors?.videoUrl} />
+      </label>
+
+      <label className="grid gap-1.5 text-sm font-medium">
         Dataset link <span className="font-normal text-muted-foreground">(optional)</span>
         <input
           className={fieldClassName}

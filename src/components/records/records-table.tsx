@@ -17,6 +17,7 @@ type PublicTrainingRecord = Pick<
   | "subject"
   | "topic"
   | "colabUrl"
+  | "videoUrl"
   | "datasetUrl"
   | "notes"
 >;
@@ -52,7 +53,7 @@ export function RecordsTable({ records, isAdmin }: RecordsTableProps) {
     <>
       <div className="hidden overflow-hidden rounded-xl border bg-card shadow-sm md:block">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[980px] text-left text-sm">
+          <table className="w-full min-w-[1100px] text-left text-sm">
             <caption className="sr-only">Training records</caption>
             <thead className="bg-muted/70 text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
@@ -61,6 +62,7 @@ export function RecordsTable({ records, isAdmin }: RecordsTableProps) {
                 <th scope="col" className="px-4 py-3 font-semibold">Subject</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Topic</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Colab</th>
+                <th scope="col" className="px-4 py-3 font-semibold">Video</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Dataset</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Notes</th>
                 {isAdmin ? (
@@ -77,6 +79,9 @@ export function RecordsTable({ records, isAdmin }: RecordsTableProps) {
                   <td className="max-w-xs px-4 py-4">{record.topic}</td>
                   <td className="px-4 py-4">
                     <ResourceLink href={asSafeHttpsUrl(record.colabUrl)} label="Open Colab" />
+                  </td>
+                  <td className="px-4 py-4">
+                    <ResourceLink href={asSafeHttpsUrl(record.videoUrl)} label="Video" />
                   </td>
                   <td className="px-4 py-4">
                     <ResourceLink href={asSafeHttpsUrl(record.datasetUrl)} label="Dataset" />
@@ -123,6 +128,7 @@ export function RecordsTable({ records, isAdmin }: RecordsTableProps) {
             ) : null}
             <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
               <ResourceLink href={asSafeHttpsUrl(record.colabUrl)} label="Open Colab" />
+              <ResourceLink href={asSafeHttpsUrl(record.videoUrl)} label="Video" />
               <ResourceLink href={asSafeHttpsUrl(record.datasetUrl)} label="Dataset" />
             </div>
             {isAdmin ? (

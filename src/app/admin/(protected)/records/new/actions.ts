@@ -21,6 +21,7 @@ export async function createTrainingRecord(
     subject: formData.get("subject"),
     topic: formData.get("topic"),
     colabUrl: formData.get("colabUrl"),
+    videoUrl: formData.get("videoUrl"),
     datasetUrl: formData.get("datasetUrl"),
     notes: formData.get("notes"),
   });
@@ -36,6 +37,7 @@ export async function createTrainingRecord(
         subject: errors.subject?.[0],
         topic: errors.topic?.[0],
         colabUrl: errors.colabUrl?.[0],
+        videoUrl: errors.videoUrl?.[0],
         datasetUrl: errors.datasetUrl?.[0],
         notes: errors.notes?.[0],
       },
@@ -52,6 +54,7 @@ export async function createTrainingRecord(
         subject: record.subject,
         topic: record.topic,
         colabUrl: record.colabUrl,
+        videoUrl: record.videoUrl,
         datasetUrl: record.datasetUrl,
         notes: record.notes,
         createdById: adminId,

@@ -22,6 +22,7 @@ export default async function EditTrainingRecordPage({
       subject: true,
       topic: true,
       colabUrl: true,
+      videoUrl: true,
       datasetUrl: true,
       notes: true,
     },
@@ -51,6 +52,7 @@ export default async function EditTrainingRecordPage({
             subject: record.subject,
             topic: record.topic,
             colabUrl: record.colabUrl,
+            videoUrl: record.videoUrl ?? "",
             datasetUrl: record.datasetUrl ?? "",
             notes: record.notes ?? "",
           }}

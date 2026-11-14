@@ -53,6 +53,7 @@ export default async function Home({ searchParams }: HomePageProps) {
       subject: true,
       topic: true,
       colabUrl: true,
+      videoUrl: true,
       datasetUrl: true,
       notes: true,
     },

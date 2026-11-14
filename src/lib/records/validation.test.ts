@@ -10,6 +10,7 @@ const validRecordFields = {
   subject: "Data engineering",
   topic: "Building a reliable pipeline",
   colabUrl: "https://colab.research.google.com/drive/example",
+  videoUrl: "",
   datasetUrl: "",
   notes: "",
 };
@@ -25,6 +26,7 @@ describe("trainingRecordSchema", () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.datasetUrl).toBeUndefined();
+      expect(result.data.videoUrl).toBeUndefined();
       expect(result.data.notes).toBeUndefined();
     }
   });
@@ -44,6 +46,18 @@ describe("trainingRecordSchema", () => {
       trainingRecordSchema.safeParse({
         ...validInput,
         datasetUrl: "https://user:password@example.com/data",
+      }).success,
+    ).toBe(false);
+  });
+
+  it("accepts a blank optional video URL and rejects non-HTTPS URLs", () => {
+    expect(trainingRecordFieldsSchema.safeParse(validRecordFields).success).toBe(
+      true,
+    );
+    expect(
+      trainingRecordFieldsSchema.safeParse({
+        ...validRecordFields,
+        videoUrl: "http://example.com/video",
       }).success,
     ).toBe(false);
   });

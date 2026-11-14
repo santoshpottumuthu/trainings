@@ -1,10 +1,10 @@
 # Project Progress
 
 ## Current Status
-- Current phase: Record management and deployment verification
-- Overall completion: 80%
-- Current task: Verify the production deployment of the new admin record actions
-- Next task: Test production login, public list, and admin CRUD workflows
+- Current phase: Optional video URL deployment
+- Overall completion: 90%
+- Current task: Code, QA, and Neon migration are complete; publish and verify the app deployment
+- Next task: Confirm the Vercel deployment and verify the public list and admin create/edit forms
 
 ## Phase Tracking
 
@@ -12,12 +12,12 @@
 - [x] Git publication: initialized local Git, excluded `.env`, committed source, and pushed `main` to GitHub
 - [x] Cloud setup: Vercel project connected to GitHub; production environment-variable names configured
 - [x] Phase 2: Project Initialization (application and tooling complete)
-- [x] Phase 3: Database Implementation (user reports production migration and seed succeeded)
-- [x] Phase 4: Public Application (shared records list implemented; live database verification pending)
+- [x] Phase 3: Database Implementation (Neon production migrations verified; 4 records present)
+- [x] Phase 4: Public Application (shared records list implemented and connected to Neon)
 - [x] Phase 5: Administrator Authentication (implemented; login returns to the records list)
 - [x] Phase 6: Record Management (create, edit, and delete implemented with server-side admin checks)
-- [x] Phase 7: Quality Assurance (22 tests, lint, and production build pass; live workflow checks pending)
-- [ ] Phase 8: Cloud Deployment (initial production deployment is Ready; latest changes are pushed and need verification)
+- [x] Phase 7: Quality Assurance (23 tests, lint, typecheck, and production build pass)
+- [ ] Phase 8: Cloud Deployment (initial production deployment is Ready; the video URL changes still need to be pushed and verified)
 
 ## Completed Work
 - Read all 298 lines of `COPILOT_TASK.md`.
@@ -40,6 +40,8 @@
 - Changed successful sign-in and already-authenticated visits to the login page to open the shared records list.
 - Added admin-only Edit and Delete actions to each desktop table row and mobile record card. Edit opens a protected prefilled form; delete requires confirmation. Both mutations verify admin authorization server-side.
 - Reused and extended record-field validation for updates; successful edits and deletions return to the shared records list.
+- Added optional `videoUrl` support to the Prisma model, admin create/edit forms and actions, safe HTTPS validation, and the shared desktop/mobile records list. Existing records remain valid with a null URL.
+- Added and applied the additive Neon migration `20261114130000_add_video_url`; verified the column is nullable and all 4 existing records remain unchanged.
 - Moved the record-creation route under the protected admin route group after an anonymous-route smoke test showed the form was initially accessible; post-move verification is pending.
 - Added Vitest coverage for public filters/query construction, URL safety, credentials, admin seed configuration, and record validation (18 tests).
 - Added an explicitly opt-in development-only administrator login and changed successful sign-in to open the record form; production rejects the development login flag.
@@ -55,7 +57,9 @@
 - Recorded implementation structure and dependency order below.
 
 ## Issues Identified
-- **Database-backed workflow verification remains pending:** the user reports that the production database migration and seed succeeded, but record persistence and admin login have not been independently exercised against Neon.
+- **Database-backed workflow verification remains pending:** the production schema and existing record count are verified, but admin login and CRUD workflows have not been independently exercised against Neon.
+- **Video URL deployment verification is pending:** Neon has the nullable column and the updated app passes local QA; Vercel deployment and live UI checks remain.
+- **Resolved — Prisma Client regeneration:** initial attempts hit Windows `EPERM` while the local dev server held the query-engine DLL. The server processes exited, and `npm run db:generate` then passed.
 - **Latest UI/CRUD changes were pushed in commit `d725c7c`:** verify that Vercel completed the production deployment for this commit.
 - **Production login and route checks remain pending:** the initial Vercel deployment reached Ready, but admin and anonymous flows have not been verified against its live URL.
 - **Node runtime is behind dependency engine recommendations:** available Node is 22.5.1; installed lint/UI transitive packages request Node 22.13+ (or 20.19+). Lint, typecheck, and build currently pass on 22.5.1, with engine warnings during install.
@@ -111,12 +115,23 @@
 - `npm audit --omit=dev`: passed; 0 production vulnerabilities.
 - `npm audit`: 8 moderate development-only findings remain; 0 high/critical.
 - `npm run db:deploy` against a deliberately fake local URL: failed as expected with Prisma P1001 because no PostgreSQL server is available.
+- Production Neon read-only check: confirmed the configured direct endpoint is Neon and found 4 `TrainingRecord` rows.
+- `npx prisma validate`: passed with the new optional `videoUrl` field.
+- `npm test`: passed; 6 files, 23 tests, including optional and HTTPS-only video URL validation.
+- `npm run lint`: passed for the video URL implementation.
+- `npm run db:deploy`: passed; applied `20261114130000_add_video_url` to Neon production.
+- Post-migration Neon verification: `"videoUrl"` exists as nullable `TEXT`; 4 records remain and all 4 have null video URLs.
+- `npx prisma migrate status`: passed; production schema is up to date.
+- `npm run db:generate`: initial attempts failed with Windows `EPERM` while the local Next.js dev server held the query-engine DLL; generation passed after those processes exited.
+- `npm run db:generate`: passed after the local server processes exited; Prisma Client 6.19.3 generated successfully with `videoUrl`.
+- `npm run typecheck`: passed with the regenerated Prisma Client.
+- `npm run build`: passed; all application routes were generated successfully.
 - Production HTTP smoke test before the route move: `/admin/login` returned 200 and `/admin` redirected anonymously with 307; `/admin/records/new` returned 200, revealing the route-group protection gap. Source was moved under the protected layout; follow-up HTTP verification is pending.
 - Browser check of `/` with an intentionally unavailable database displayed the generic “Training records are unavailable” error UI. The route returned HTTP 500 and server logs showed P1001; no data was fabricated.
 - Initial Git readiness check (before repository initialization): no `.git` directory or remote existed; this was resolved by initializing the repository and pushing the initial commit.
 - Git publication: `git diff --cached --check` passed; `.env` was confirmed absent from the staged file list; local commit `a8cb3c7356d46b544aaf5b07a3ed17eda38f25a3` was pushed successfully to `origin/main`, and `git ls-remote origin refs/heads/main` returned the matching commit.
 - Latest test run before adding the development-login guard: 18 tests passed. Guard tests and the post-move route need a follow-up check.
-- Local DB tool probe: `psql`, `postgres`, and `docker` unavailable; no database connection/migration/seed test possible.
+- Local DB tool probe: `psql`, `postgres`, and `docker` unavailable; Neon was verified through Prisma's configured direct connection.
 - `git check-ignore -v .env node_modules .next .vercel tsconfig.tsbuildinfo`: passed; all local-secret/generated paths are ignored.
 - Latest `npm run lint`: passed.
 - Latest `npm test`: passed; 6 files, 22 tests.
@@ -127,4 +142,5 @@
 - Vercel project `trainings` is connected to `santoshpottumuthu/trainings`; its production environment variables are configured.
 - The initial production deployment for commit `4c1239f` reached Ready. Project domain shown in Vercel: `https://trainings-three-gold.vercel.app`.
 - The latest header, login redirect, and admin edit/delete changes were pushed in commit `d725c7c`; completion of its production deployment has not been independently confirmed.
-- The user reports that the Neon migration and seed succeeded; the production login and CRUD workflows still need verification.
+- Neon migration status and the existing four-row record count are verified; production login and CRUD behavior still need verification.
+- The new optional `videoUrl` column is applied in Neon production; the updated application still needs deployment and live UI verification.

@@ -17,6 +17,7 @@ type EditableRecord = {
   subject: string;
   topic: string;
   colabUrl: string;
+  videoUrl: string;
   datasetUrl: string;
   notes: string;
 };
@@ -140,6 +141,21 @@ export function EditRecordForm({ record }: { record: EditableRecord }) {
           {...fieldProps(errors, "colabUrl")}
         />
         <FieldError id="colabUrl-error" message={errors?.colabUrl} />
+      </label>
+
+      <label className="grid gap-1.5 text-sm font-medium">
+        Video link <span className="font-normal text-muted-foreground">(optional)</span>
+        <input
+          className={fieldClassName}
+          name="videoUrl"
+          type="url"
+          inputMode="url"
+          maxLength={2048}
+          placeholder="https://..."
+          defaultValue={record.videoUrl}
+          {...fieldProps(errors, "videoUrl")}
+        />
+        <FieldError id="videoUrl-error" message={errors?.videoUrl} />
       </label>
 
       <label className="grid gap-1.5 text-sm font-medium">

@@ -17,6 +17,10 @@ const trainingRecordFields = {
   subject: z.string().trim().min(1).max(100),
   topic: z.string().trim().min(1).max(200),
   colabUrl: httpsUrl,
+  videoUrl: z.preprocess(
+    (value) => (value === "" || value === null ? undefined : value),
+    httpsUrl.optional(),
+  ),
   datasetUrl: z.preprocess(
     (value) => (value === "" || value === null ? undefined : value),
     httpsUrl.optional(),
@@ -44,6 +48,7 @@ export type RecordFieldErrors = Partial<
     | "subject"
     | "topic"
     | "colabUrl"
+    | "videoUrl"
     | "datasetUrl"
     | "notes",
     string

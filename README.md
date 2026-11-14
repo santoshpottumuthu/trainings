@@ -1,6 +1,6 @@
 # Training Records Management
 
-A Next.js App Router application for public training-record browsing and authenticated administrator record creation.
+A Next.js App Router application for public training-record browsing and authenticated administrator record management. Video links are optional HTTPS URLs visible to all readers and editable by administrators.
 
 ## Stack
 

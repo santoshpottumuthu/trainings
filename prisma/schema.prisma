@@ -27,6 +27,7 @@ model TrainingRecord {
   subject       String
   topic         String
   colabUrl      String
+  videoUrl      String?
   datasetUrl    String?
   notes         String?
   createdBy     User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
