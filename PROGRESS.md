@@ -1,14 +1,15 @@
 # Project Progress
 
 ## Current Status
-- Current phase: Git readiness check; implementation and integration verification remain in progress
+- Current phase: Git publication complete; implementation and integration verification remain in progress
 - Overall completion: 60%
-- Current task: Confirm source-control setup and keep secrets out of the publishable template
-- Next task: Initialize a Git repository and add an authorized GitHub remote when requested; then resume database-backed verification
+- Current task: Resume application verification after publishing the initial source to GitHub
+- Next task: Configure PostgreSQL, regenerate Next.js route types, and verify database-backed workflows and protected-route behavior
 
 ## Phase Tracking
 
 - [x] Phase 1: Project Analysis and Planning
+- [x] Git publication: initialized local Git, excluded `.env`, committed source, and pushed `main` to GitHub
 - [ ] Phase 2: Project Initialization (application/tooling complete; live database connection unverified)
 - [ ] Phase 3: Database Implementation (schema, migration, and seed implemented; database execution unverified)
 - [ ] Phase 4: Public Application (implemented; database-backed workflow verification pending)
@@ -39,6 +40,7 @@
 - Added an explicitly opt-in development-only administrator login and changed successful sign-in to open the record form; production rejects the development login flag.
 - Audited Git readiness: the workspace has no `.git` directory and no configured remote. `.gitignore` excludes `.env`, `.next`, `node_modules`, and `.vercel`; `.env.example` remains publishable.
 - Removed non-empty development credential values from `.env.example`; local `.env` remains ignored and must never be staged.
+- Initialized Git on `main`, verified `.env` was not staged, committed as `a8cb3c7356d46b544aaf5b07a3ed17eda38f25a3`, and pushed successfully to `https://github.com/santoshpottumuthu/trainings`.
 - Selected a single Next.js App Router application with TypeScript, PostgreSQL, Prisma, Auth.js Credentials, Zod, Tailwind CSS, and shadcn/ui-compatible components; no separate backend service.
 - Selected bcrypt for password hashing and Auth.js JWT sessions with secure cookie settings, avoiding a credentials-provider/database-session incompatibility.
 - Planned database-backed login throttling to work across serverless instances without introducing a separate rate-limit service.
@@ -46,9 +48,9 @@
 - Recorded implementation structure and dependency order below.
 
 ## Issues Identified
-- **No Git repository or remote:** `git status --short --branch` reports that the workspace is not a Git repository. Source control publication cannot be completed without an initialized repository and authorized remote.
+- **Git publication complete:** the initial source commit is on the configured GitHub `main` branch. Vercel deployment and database-backed verification remain blocked on their respective authorization/configuration.
 - **Local development sign-in is not currently configured:** the inspected `.env` has no development-login flag or username/password values, so the temporary bypass is disabled; without `DATABASE_URL`, the normal database-backed sign-in cannot work.
-- **No database, Auth.js, Vercel, or GitHub credentials/configuration are available:** only the unrelated `COPILOT_ENABLE_BUILTIN_GITHUB_MCP` environment variable name was present. Local development can proceed using placeholders and a local setup path, but production database provisioning and deployment will require account authorization/configuration.
+- **No production database or hosting configuration is available:** local development can proceed using placeholders and a local setup path, but production database provisioning and Vercel deployment will require account authorization/configuration. GitHub access for source publication was available through the authenticated Git integration.
 - **No PostgreSQL installation or credentials are available:** `psql`, `postgres`, and `docker` are not on PATH. The Prisma client, schema, migration, and seed are ready, but live migration, seed, and connection behavior cannot yet be verified.
 - **Record route protection needs re-verification:** an anonymous request to `/admin/records/new` returned HTTP 200 before the route was moved under the protected layout. The source route was moved; a post-move production build and HTTP check have not completed.
 - **Stale Next.js route types after route move:** `npm run typecheck` referenced the old `.next/types/validator.ts` route path. A subsequent build was started but interrupted, so regenerated route types and the fixed route behavior are not yet confirmed.
@@ -79,7 +81,7 @@
 - **High — database verification blocked:** no local PostgreSQL service or configured `DATABASE_URL`/`DIRECT_URL`; cannot apply a migration, run the seed against a database, or test real persistence.
 - **High — protected creation route recheck:** route source is under the protected layout, but the latest build and anonymous redirect check were interrupted.
 - **Medium — development dependency audit:** remaining audit findings are development-only and moderate; production-only audit is clean. Review and resolve before release.
-- **Blocking production deployment:** no Git remote/source-control authorization, Vercel project authorization, Neon database/credentials, or production secrets have been provided. Do not request or place secrets in chat; deployment setup must use the authorized provider UI/environment configuration when available.
+- **Blocking production deployment:** Vercel project authorization, Neon database/credentials, and production secrets have not been provided. Do not request or place secrets in chat; deployment setup must use the authorized provider UI/environment configuration when available.
 
 ## Test Results
 - `Get-ChildItem -Force`: passed; confirmed only `COPILOT_TASK.md` exists in the root.
@@ -109,9 +111,11 @@
 - `npm run db:deploy` against a deliberately fake local URL: failed as expected with Prisma P1001 because no PostgreSQL server is available.
 - Production HTTP smoke test before the route move: `/admin/login` returned 200 and `/admin` redirected anonymously with 307; `/admin/records/new` returned 200, revealing the route-group protection gap. Source was moved under the protected layout; follow-up HTTP verification is pending.
 - Browser check of `/` with an intentionally unavailable database displayed the generic “Training records are unavailable” error UI. The route returned HTTP 500 and server logs showed P1001; no data was fabricated.
-- Latest Git readiness check: `git rev-parse --show-toplevel` and `git status --short --branch` both report no Git repository. No push or remote operation was attempted.
+- Initial Git readiness check (before repository initialization): no `.git` directory or remote existed; this was resolved by initializing the repository and pushing the initial commit.
+- Git publication: `git diff --cached --check` passed; `.env` was confirmed absent from the staged file list; local commit `a8cb3c7356d46b544aaf5b07a3ed17eda38f25a3` was pushed successfully to `origin/main`, and `git ls-remote origin refs/heads/main` returned the matching commit.
 - Latest test run before adding the development-login guard: 18 tests passed. Guard tests and the post-move route need a follow-up check.
-- Local DB tool probe: `psql`, `postgres`, and `docker` unavailable; no database connection/migration/seed test possible. `git check-ignore` likewise cannot be run because this directory is not yet a Git repository.
+- Local DB tool probe: `psql`, `postgres`, and `docker` unavailable; no database connection/migration/seed test possible.
+- `git check-ignore -v .env node_modules .next .vercel tsconfig.tsbuildinfo`: passed; all local-secret/generated paths are ignored.
 
 ## Deployment Status
 - Not deployed.
