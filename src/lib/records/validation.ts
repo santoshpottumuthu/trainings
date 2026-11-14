@@ -1,0 +1,52 @@
+import { z } from "zod";
+import { asSafeHttpsUrl } from "@/lib/urls";
+
+const httpsUrl = z
+  .string()
+  .trim()
+  .min(1)
+  .max(2048)
+  .url()
+  .refine((value) => asSafeHttpsUrl(value) !== null, {
+    message: "Enter a valid HTTPS URL.",
+  });
+
+export const trainingRecordSchema = z.object({
+  submissionKey: z.string().uuid(),
+  date: z.iso.date(),
+  trainer: z.string().trim().min(1).max(100),
+  subject: z.string().trim().min(1).max(100),
+  topic: z.string().trim().min(1).max(200),
+  colabUrl: httpsUrl,
+  datasetUrl: z.preprocess(
+    (value) => (value === "" || value === null ? undefined : value),
+    httpsUrl.optional(),
+  ),
+  notes: z.preprocess(
+    (value) => (value === "" || value === null ? undefined : value),
+    z.string().trim().max(5000).optional(),
+  ),
+});
+
+export type TrainingRecordInput = z.infer<typeof trainingRecordSchema>;
+
+export type RecordFieldErrors = Partial<
+  Record<
+    | "date"
+    | "trainer"
+    | "subject"
+    | "topic"
+    | "colabUrl"
+    | "datasetUrl"
+    | "notes",
+    string
+  >
+>;
+
+export type CreateRecordState =
+  | {
+      status: "error" | "success";
+      message: string;
+      fieldErrors?: RecordFieldErrors;
+    }
+  | null;
